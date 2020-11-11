@@ -1,0 +1,37 @@
+name: Release
+on:
+  release:
+    types: [published]
+jobs:
+  release:
+    name: Release
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    - name: Build and zip
+      shell: bash
+      run: |
+          # Define some variables for things we need
+          tag=$(git describe --tags --abbrev=0)
+          release_name="Veracode.OSS.Declare-$tag-${{ matrix.platform }}"
+          dotnet publish Veracode.OSS.Declare/Veracode.OSS.Declare.csproj --framework netcoreapp3.1 -c Release -o "$release_name"
+          if [ "${{ matrix.platform }}" == "windows-latest" ]; then
+            7z a -tzip "${release_name}.zip" "./${release_name}/*"
+          else
+            tar czvf "${release_name}.tar.gz" "$release_name"
+          fi
+          rm -r "$release_name"
+    - name: Publish
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "Veracode.OSS.Declare*"
+      env:
+        GITHUB_TOKEN: ${{ secrets.VERACODE_OSS_DECLARE }}
