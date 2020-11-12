@@ -5,26 +5,29 @@ using System.Threading.Tasks;
 
 namespace Veracode.OSS.Declare.Artifactory
 {
-    public interface ICommandRunner {
-        Task<bool> RunJFrogTask(string arguements);    
+    public interface ICommandRunner
+    {
+        bool RunJFrogTask(string arguements);
     }
 
     public class CommandRunner : ICommandRunner
     {
-        public async Task<bool> RunJFrogTask(string arguements)
+        public bool RunJFrogTask(string arguements)
         {
-            return await Task.Factory.StartNew(() =>
+            Environment.SetEnvironmentVariable("JFROG_CLI_OFFER_CONFIG", "false");
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
             {
-                System.Diagnostics.Process process = new System.Diagnostics.Process();
-                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
-                startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                startInfo.FileName = "jfrog.exe";
-                startInfo.Arguments = arguements;
-                process.StartInfo = startInfo;
-                process.Start();
-                process.WaitForExit();
-                return true;
-            });
+                RedirectStandardOutput = true
+            };
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = "jfrog.exe";
+            startInfo.Arguments = arguements;
+            process.StartInfo = startInfo;
+            process.Start();
+            Console.WriteLine(process.StandardOutput.ReadToEnd());
+            process.WaitForExit();
+            return true;
         }
     }
 }

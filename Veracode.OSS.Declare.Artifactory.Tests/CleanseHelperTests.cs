@@ -12,7 +12,7 @@ namespace Veracode.OSS.Declare.Artifactory.Tests
         [Test]
         public void Cleanse_ShouldNotStripValidCharacters()
         {
-            var original = "abzcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\\/.-*";
+            var original = "abzcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\\/.-*:";
             var cleansed = CleanseHelper.Cleanse(original);
             Assert.AreEqual(original, cleansed);
         }
@@ -22,7 +22,7 @@ namespace Veracode.OSS.Declare.Artifactory.Tests
         {
             var original = EveryAsciiCharacter();
             var cleansed = CleanseHelper.Cleanse(original);
-            Assert.IsTrue(cleansed.Length == 68);
+            Assert.IsTrue(cleansed.Length == 69);
         }
 
         private string EveryAsciiCharacter()

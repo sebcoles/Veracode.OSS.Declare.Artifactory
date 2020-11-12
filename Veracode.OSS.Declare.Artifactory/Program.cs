@@ -19,6 +19,7 @@ namespace Veracode.OSS.Declare.Artifactory
         private static IServiceProvider _serviceProvider;
         private static ILogger _logger;
         private static ICommandRunner _commandRunner;
+        private static IDownloaderLogic _downloaderLogic;
         private static string _artifactoryUrl;
         private static string _artifactoryApiKey;
 
@@ -35,14 +36,17 @@ namespace Veracode.OSS.Declare.Artifactory
             var serviceCollection = new ServiceCollection();
             _artifactoryUrl = Configuration.GetValue<string>("ArtifactoryUrl");
             _artifactoryApiKey = Configuration.GetValue<string>("ArtifactoryApiKey");
-            serviceCollection.AddLogging(loggingBuilder => {
+            serviceCollection.AddLogging(loggingBuilder =>
+            {
                 loggingBuilder.AddNLog("nlog.config");
             });
             serviceCollection.AddScoped<ICommandRunner, CommandRunner>();
+            serviceCollection.AddScoped<IDownloaderLogic, DownloaderLogic>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
             _logger = _serviceProvider.GetService<ILogger<Program>>();
             _commandRunner = _serviceProvider.GetService<ICommandRunner>();
+            _downloaderLogic = _serviceProvider.GetService<IDownloaderLogic>();
 
             Parser.Default.ParseArguments<
                 DownloadOptions>(args)
@@ -54,38 +58,27 @@ namespace Veracode.OSS.Declare.Artifactory
         static int Download(DownloadOptions options)
         {
             _logger.LogDebug($"Entering {LoggingHelper.GetMyMethodName()} with scan options {options}");
-
-            if (Directory.Exists("Artifactory"))
-                Directory.Delete("Artifactory");
-
-            Directory.CreateDirectory("Artifactory");
-
             var declareConfigRepository = new DeclareConfigurationRepository(options.JsonFileLocation);
-            
-            if(!declareConfigRepository.Apps().Any(x => !x.download.Any(x => x.Name.ToLower().Equals("artifactory"))))
-            {
-                _logger.LogWarning("There is no artifactory providers configured. Exiting");
+
+            _downloaderLogic.PrepareDownloadFolder(options.Target);
+
+            if (!_downloaderLogic.AnyArtifactoryProvidersConfigured(declareConfigRepository.Apps()))
                 return 1;
-            }
 
-            var taskList = new List<Task>();
-            foreach (var app in declareConfigRepository.Apps())
+            var artifactoryPaths = _downloaderLogic.GetArtifactoryPaths(declareConfigRepository.Apps());
+
+            foreach (var artifactoryPath in artifactoryPaths)
             {
-                if (!app.download.Any(x => x.Name.ToLower().Equals("artifactory")))
-                    continue;
-
-                foreach(var file in app.download.Single(x => x.Name.Equals("artifactory")).Files)
+                _logger.LogInformation($"Starting download for {artifactoryPath}");
+                _commandRunner.RunJFrogTask(new ArtifactoryCommand
                 {
-                    var command = new ArtifactoryCommand
-                    {
-                        ArtifactoryApiKey = _artifactoryApiKey,
-                        ArtifactorySourcePath = CleanseHelper.Cleanse(file.location),
-                        ArtifactoryUrl = _artifactoryUrl
-                    };
-                    taskList.Add(_commandRunner.RunJFrogTask(command.ReturnCommand())); ;
-                }
+                    ArtifactoryApiKey = _artifactoryApiKey,
+                    ArtifactorySourcePath = CleanseHelper.Cleanse(artifactoryPath),
+                    ArtifactoryUrl = _artifactoryUrl,
+                    DownloadFolder = CleanseHelper.Cleanse(options.Target)
+                }.ReturnCommand());
+                _logger.LogInformation($"Download complete for {artifactoryPath}");
             }
-            Task.WaitAll(taskList.ToArray());
 
             _logger.LogDebug($"Exiting {LoggingHelper.GetMyMethodName()} with value {1}");
             return 1;

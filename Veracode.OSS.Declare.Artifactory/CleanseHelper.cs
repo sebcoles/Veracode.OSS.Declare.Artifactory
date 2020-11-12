@@ -11,7 +11,7 @@ namespace Veracode.OSS.Declare.Artifactory
         {
             try
             {
-                return Regex.Replace(strIn, @"[^\w\.-/\\]", "",
+                return Regex.Replace(strIn, @"[^\w\.\-:/\\*]", "",
                                      RegexOptions.None, TimeSpan.FromSeconds(1.5));
             }
             catch (RegexMatchTimeoutException)

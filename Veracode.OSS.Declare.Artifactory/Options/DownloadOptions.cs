@@ -9,6 +9,9 @@ namespace Veracode.OSS.Declare.Artifactory.Options
         [Option('f', "jsonfile", Default = "veracode.json", Required = true, HelpText = "Location of JSON configuration file")]
         public string JsonFileLocation { get; set; }
 
+        [Option('t', "target", Default = "Artifactory", Required = true, HelpText = "Language for tool output")]
+        public string Target { get; set; }
+
         [Option('l', "language", Default = "en-GB", Required = false, HelpText = "Language for tool output")]
         public string Language { get; set; }
         public override string ToString()

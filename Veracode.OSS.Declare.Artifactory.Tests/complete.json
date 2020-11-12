@@ -13,14 +13,14 @@
       ],
       "download": [
         {
-          "provider": {
-            "name": "artifactory",
-            "files": [
-              {
-                "location": "mvn-public-local/org/owasp/encoder/encoder/1.1/encoder-1.1.jar"
-              }
-            ]
-          }
+          "name": "artifactory",
+          "files": [
+            { "location": "mvn-public-local/org/owasp/encoder/encoder/1.1/encoder-1.1.jar" },
+            { "location": "mvn-public-local/org/owasp/encoder/encoder/1.1.1/encoder-1.1.1.jar" },
+            { "location": "mvn-public-local/org/owasp/encoder/encoder/1.2/encoder-1.2.jar" },
+            { "location": "mvn-public-local/org/owasp/encoder/encoder/1.2.2/encoder-1.2.2.jar" },
+            { "location": "mvn-public-local/org/owasp/encoder/encoder/1.2.3/encoder-1.2.3.jar" }
+          ]
         }
       ],
       "modules": [
