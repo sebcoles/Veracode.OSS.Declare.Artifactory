@@ -21,8 +21,14 @@ jobs:
       run: |
           # Define some variables for things we need
           tag=$(git describe --tags --abbrev=0)
-          release_name="Veracode.OSS.Declare-$tag-${{ matrix.platform }}"
-          dotnet publish Veracode.OSS.Declare/Veracode.OSS.Declare.csproj --framework netcoreapp3.1 -c Release -o "$release_name"
+          release_name="Veracode.OSS.Declare.Artifactory-$tag-${{ matrix.platform }}"
+          dotnet publish Veracode.OSS.Declare.Artifactory/Veracode.OSS.Declare.Artifactory.csproj --framework netcoreapp3.1 -c Release -o "$release_name"
+          if [ "${{ matrix.platform }}" == "windows-latest" ]; then
+            cp Veracode.OSS.Declare.Artifactory/jfrog.exe "${release_name}/"
+          if [ "${{ matrix.platform }}" == "ubuntu-latest" ]; then
+            cp Veracode.OSS.Declare.Artifactory/jfrog-linux "${release_name}/"
+          if [ "${{ matrix.platform }}" == "macos-latest" ]; then
+            cp Veracode.OSS.Declare.Artifactory/jfrog-mac "${release_name}/"
           if [ "${{ matrix.platform }}" == "windows-latest" ]; then
             7z a -tzip "${release_name}.zip" "./${release_name}/*"
           else
@@ -32,6 +38,6 @@ jobs:
     - name: Publish
       uses: softprops/action-gh-release@v1
       with:
-        files: "Veracode.OSS.Declare*"
+        files: "Veracode.OSS.Declare.Artifactory*"
       env:
-        GITHUB_TOKEN: ${{ secrets.VERACODE_OSS_DECLARE }}
+        GITHUB_TOKEN: ${{ secrets.VERACODE_OSS_DECLARE_ARTIFACTORY }}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,7 +22,12 @@ namespace Veracode.OSS.Declare.Artifactory
                 RedirectStandardOutput = true
             };
             startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-            startInfo.FileName = "jfrog.exe";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                startInfo.FileName = "jfrog.exe";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                startInfo.FileName = "jfrog-linux";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                startInfo.FileName = "jfrog-mac.exe";
             startInfo.Arguments = arguements;
             process.StartInfo = startInfo;
             process.Start();

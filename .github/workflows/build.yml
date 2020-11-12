@@ -17,5 +17,5 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ matrix.dotnet }}
-      - run: dotnet build Veracode.OSS.Declare/Veracode.OSS.Declare.csproj
+      - run: dotnet build Veracode.OSS.Declare.Artifactory/Veracode.OSS.Declare.Artifactory.csproj
  
