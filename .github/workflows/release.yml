@@ -23,12 +23,17 @@ jobs:
           tag=$(git describe --tags --abbrev=0)
           release_name="Veracode.OSS.Declare.Artifactory-$tag-${{ matrix.platform }}"
           dotnet publish Veracode.OSS.Declare.Artifactory/Veracode.OSS.Declare.Artifactory.csproj --framework netcoreapp3.1 -c Release -o "$release_name"
+          # Copy correct JFROG CLI binary
           if [ "${{ matrix.platform }}" == "windows-latest" ]; then
             cp Veracode.OSS.Declare.Artifactory/jfrog.exe "${release_name}/"
+          fi
           if [ "${{ matrix.platform }}" == "ubuntu-latest" ]; then
             cp Veracode.OSS.Declare.Artifactory/jfrog-linux "${release_name}/"
+          fi
           if [ "${{ matrix.platform }}" == "macos-latest" ]; then
             cp Veracode.OSS.Declare.Artifactory/jfrog-mac "${release_name}/"
+          fi
+          # Zip
           if [ "${{ matrix.platform }}" == "windows-latest" ]; then
             7z a -tzip "${release_name}.zip" "./${release_name}/*"
           else
