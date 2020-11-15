@@ -7,8 +7,7 @@ using NLog.Fluent;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Reflection;
 using Veracode.OSS.Declare.Artifactory.Options;
 using Veracode.OSS.Declare.Configuration;
 
@@ -26,7 +25,7 @@ namespace Veracode.OSS.Declare.Artifactory
         static void Main(string[] args)
         {
             IConfiguration Configuration = new ConfigurationBuilder()
-.SetBasePath(Directory.GetCurrentDirectory())
+.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location))
 #if DEBUG
                 .AddJsonFile($"appsettings.Development.json", false)
 #else
