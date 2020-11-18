@@ -1,7 +1,7 @@
 #!/bin/bash
 PROJECT_NAME="Veracode.OSS.Declare.Artifactory"
 RELEASE_URL="https://api.github.com/repos/sebcoles/veracode.oss.declare.artifactory/releases/latest"
-DESTINATION_DIRECTORY="declare-artifactory"
+DESTINATION_DIRECTORY="/declare-artifactory"
 
 echo $PROJECT_NAME latest binary downloader
 
