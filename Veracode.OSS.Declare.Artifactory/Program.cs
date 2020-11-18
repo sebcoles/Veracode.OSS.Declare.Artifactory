@@ -33,8 +33,15 @@ namespace Veracode.OSS.Declare.Artifactory
 #endif
                 .Build();
             var serviceCollection = new ServiceCollection();
+            var _useEnvironmentVariables = Configuration.GetValue<bool>("UseEnvironmentVariables");
             _artifactoryUrl = Configuration.GetValue<string>("ArtifactoryUrl");
-            _artifactoryApiKey = Configuration.GetValue<string>("ArtifactoryApiKey");
+            if (_useEnvironmentVariables || String.IsNullOrEmpty(_artifactoryUrl))
+                _artifactoryUrl = Environment.GetEnvironmentVariable("ARTIFACTORY_URL");
+
+            _artifactoryApiKey = Configuration.GetValue<string>("ArtifactoryAccessToken");
+            if (_useEnvironmentVariables || String.IsNullOrEmpty(_artifactoryApiKey))
+                _artifactoryUrl = Environment.GetEnvironmentVariable("ARTIFACTORY_ACCESS_TOKEN");
+
             serviceCollection.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.AddNLog("nlog.config");
